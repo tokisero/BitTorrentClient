@@ -80,6 +80,9 @@ void speed::check_cancellation() {
 		if (read(STDIN_FILENO, &c, 1) == 1) {
 			if (c == 'q' || c == 'Q') {
 				cancelled = true;
+				if (w) {
+					w->delete_file();
+				}
 			}
 		}
 	}

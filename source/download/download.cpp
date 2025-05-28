@@ -27,6 +27,7 @@ download::download(const vector<peer>& peers, torrent& t):
 
 	s.set_total(total_blocks * BLOCK_SIZE);
 	s.set_download(*this);
+	s.set_writer(w);
 }
 
 void download::start() {

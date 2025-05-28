@@ -13,6 +13,7 @@
 #include <filesystem>
 
 class download; // forward declaration
+class writer;   // forward declaration
 
 class speed {
 
@@ -30,16 +31,18 @@ private:
 	void human_readable(unsigned int b); 
 
     download* d = nullptr; // ссылка на download
+    writer* w = nullptr;   // ссылка на writer
     std::atomic<bool> cancelled{false}; // флаг отмены
 
 public:
-	speed(): total(0), bytes(0), finito(false), prev(0), mod(0), d(nullptr) {}
+	speed(): total(0), bytes(0), finito(false), prev(0), mod(0), d(nullptr), w(nullptr) {}
 	void set_total(long long t);
 	void start();
 	void stop();
 	void add(unsigned int b);
 	void draw(double progress, unsigned int speed);
     void set_download(download& d) { this->d = &d; }
+    void set_writer(writer& w) { this->w = &w; }
     bool is_cancelled() const { return cancelled; }
     void check_cancellation(); // новый метод для проверки отмены
 };
@@ -73,6 +76,15 @@ public:
 		std::lock_guard<std::mutex> lock(mx);
 		download_dir = dir;
 		open_file();
+	}
+
+	void delete_file() {
+		std::lock_guard<std::mutex> lock(mx);
+		if (out.is_open()) {
+			out.close();
+		}
+		std::filesystem::path filepath = std::filesystem::path(download_dir) / filename;
+		std::filesystem::remove(filepath);
 	}
 
 private:
