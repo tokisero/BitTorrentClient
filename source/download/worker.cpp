@@ -3,6 +3,9 @@
 #include <vector>
 #include <chrono>
 #include <iostream>
+#include <sys/select.h>
+#include <termios.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -53,15 +56,43 @@ void writer::add(buffer& b, int offset) {
 	cv.notify_one();
 }
 
-void speed::start() {
+// Функция для настройки неблокирующего ввода
+void set_nonblocking() {
+	struct termios ttystate;
+	tcgetattr(STDIN_FILENO, &ttystate);
+	ttystate.c_lflag &= ~(ICANON | ECHO);
+	ttystate.c_cc[VMIN] = 0;
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
+}
 
-	cout<<"Wait for the download to complete ..."<<endl;
+void speed::check_cancellation() {
+	fd_set readfds;
+	struct timeval tv;
+	
+	FD_ZERO(&readfds);
+	FD_SET(STDIN_FILENO, &readfds);
+	
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	
+	if (select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv) > 0) {
+		char c;
+		if (read(STDIN_FILENO, &c, 1) == 1) {
+			if (c == 'q' || c == 'Q') {
+				cancelled = true;
+			}
+		}
+	}
+}
+
+void speed::start() {
+	set_nonblocking(); // Устанавливаем неблокирующий режим при старте
+	
+	cout << "Wait for the download to complete ..." << endl;
 	draw(0.0, 0);
 
-	t = thread([this](){
-
+	t = thread([this]() {
 		while(!finito) {
-
 			if(mod % 5 == 0) {
 				unsigned int v = bytes.exchange(0);
 				unsigned int speed = 1000 * v / delay;
@@ -69,17 +100,23 @@ void speed::start() {
 			}
 			mod = (mod + 1) % 5;
 			
-			draw((double)received / total, prev);
+			double progress = total > 0 ? (double)received / total : 0.0;
+			draw(progress, prev);
 			this_thread::sleep_for(chrono::milliseconds(delay / 5));
 		}
-		draw((double)received / total, 0.0);
+		draw(total > 0 ? (double)received / total : 0.0, 0.0);
 	});
 }
 
 void speed::stop() {
-
 	finito = true;
 	t.join();
+	
+	// Восстанавливаем нормальный режим терминала
+	struct termios ttystate;
+	tcgetattr(STDIN_FILENO, &ttystate);
+	ttystate.c_lflag |= ICANON | ECHO;
+	tcsetattr(STDIN_FILENO, TCSANOW, &ttystate);
 }
 
 void speed::add(unsigned int b) {
@@ -89,9 +126,13 @@ void speed::add(unsigned int b) {
 }
 
 void speed::draw(double progress, unsigned int speed) {
+	static const int bar_width = 50;
+	static const int line_width = 100; // Примерная ширина всей строки
 
-	int bar_width = 50;
+	// Очищаем текущую строку
+	cout << "\r" << string(line_width, ' ') << "\r";
 
+	// Рисуем прогресс-бар
 	cout << "[";
 	int pos = bar_width * progress;
 	for (int i = 0; i < bar_width; ++i) {
@@ -104,8 +145,10 @@ void speed::draw(double progress, unsigned int speed) {
 	if (d) {
 		cout << " | Активных сидов: " << d->get_active_peers();
 	}
-	cout << "              \r";
+	cout << " | Для отмены и выхода нажмите q";
 	cout.flush();
+	
+	check_cancellation();
 }
 
 void speed::set_total(long long t) {

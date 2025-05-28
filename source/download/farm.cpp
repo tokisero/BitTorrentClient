@@ -32,7 +32,7 @@ void farm::hatch() {
 		}
 	}
 
-	while(!d.is_done()) {
+	while(!d.is_done() && !d.is_cancelled()) {
 
 		int nfd = epoll_wait(epfd, events, MAX_EVENTS, -1);
 		if (nfd < 0) {

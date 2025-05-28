@@ -51,6 +51,12 @@ void download::start() {
 
 	w.stop();
 	s.stop();
+
+	if (is_cancelled()) {
+		cout << "\nЗагрузка отменена пользователем" << endl;
+	} else {
+		cout << endl << "Загрузка успешно завершена!" << endl;
+	}
 }
 
 void download::add_received(int piece, int block, buffer piece_data) {
@@ -92,7 +98,7 @@ bool download::is_done() {
 }
 
 double download::completed() {
-
+	if (total_blocks == 0) return 0.0;
 	return (double)received_count / total_blocks;
 }
 

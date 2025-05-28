@@ -32,6 +32,7 @@ public:
 	void start();
 	double completed();
 	bool is_done();
+	bool is_cancelled() const { return s.is_cancelled(); }
 
 	struct job {
 		int index;

@@ -30,6 +30,7 @@ private:
 	void human_readable(unsigned int b); 
 
     download* d = nullptr; // ссылка на download
+    std::atomic<bool> cancelled{false}; // флаг отмены
 
 public:
 	speed(): total(0), bytes(0), finito(false), prev(0), mod(0), d(nullptr) {}
@@ -39,6 +40,8 @@ public:
 	void add(unsigned int b);
 	void draw(double progress, unsigned int speed);
     void set_download(download& d) { this->d = &d; }
+    bool is_cancelled() const { return cancelled; }
+    void check_cancellation(); // новый метод для проверки отмены
 };
 
 class writer {
