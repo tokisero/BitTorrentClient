@@ -1,0 +1,6 @@
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/CMakeFiles/edit_cache.dir
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/CMakeFiles/rebuild_cache.dir
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/source/CMakeFiles/BitTorrent.dir
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/source/CMakeFiles/BitTorrent_lib.dir
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/source/CMakeFiles/edit_cache.dir
+/home/tokiserskyy/Документы/ОСиСП/bittorrent/build/source/CMakeFiles/rebuild_cache.dir
