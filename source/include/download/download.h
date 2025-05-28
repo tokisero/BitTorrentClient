@@ -22,6 +22,8 @@ private:
 	int total_blocks;
 	std::string download_dir;
 
+	int active_peers = 0;
+
 public:
 	download(const std::vector<peer>& peers, torrent& t);
 	void add_received(int piece, int block, buffer b);
@@ -47,6 +49,10 @@ public:
 	job pop_job();
 
 	static const int BLOCK_SIZE = (1<<14);
+
+	int get_active_peers() const { return active_peers; }
+	void increment_active_peers() { active_peers++; }
+	void decrement_active_peers() { active_peers--; }
 
 private:
 	std::priority_queue<job> jobs;

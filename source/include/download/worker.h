@@ -12,6 +12,8 @@
 #include <string>
 #include <filesystem>
 
+class download; // forward declaration
+
 class speed {
 
 private:
@@ -27,13 +29,16 @@ private:
 
 	void human_readable(unsigned int b); 
 
+    download* d = nullptr; // ссылка на download
+
 public:
-	speed(): total(0), bytes(0), finito(false), prev(0), mod(0) {}
+	speed(): total(0), bytes(0), finito(false), prev(0), mod(0), d(nullptr) {}
 	void set_total(long long t);
 	void start();
 	void stop();
 	void add(unsigned int b);
 	void draw(double progress, unsigned int speed);
+    void set_download(download& d) { this->d = &d; }
 };
 
 class writer {

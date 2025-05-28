@@ -12,7 +12,9 @@
 using namespace std;
 
 connection::connection(const peer& p, torrent& t, download& d): p(p), d(d), t(t), buff(buffer()), 
-	handshake(true), choked(true), connected(false), socket(p.host, p.port, false) {}
+	handshake(true), choked(true), connected(false), socket(p.host, p.port, false) {
+	d.increment_active_peers();
+}
 
 void connection::handle(buffer& msg) {
 
@@ -54,7 +56,7 @@ void connection::handle(buffer& msg) {
 }
 
 void connection::choke_handler() {
-
+	d.decrement_active_peers();
 	socket.close();
 }
 

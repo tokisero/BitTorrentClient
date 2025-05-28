@@ -1,4 +1,5 @@
 #include "download/worker.h"
+#include "download/download.h"
 #include <vector>
 #include <chrono>
 #include <iostream>
@@ -100,7 +101,10 @@ void speed::draw(double progress, unsigned int speed) {
 	}
 	cout << "] " << int(progress * 100.0) << " %   ";
 	human_readable(speed);
-	cout<<"              \r";
+	if (d) {
+		cout << " | Активных сидов: " << d->get_active_peers();
+	}
+	cout << "              \r";
 	cout.flush();
 }
 
