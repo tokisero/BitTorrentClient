@@ -10,9 +10,17 @@ project(BitTorrent
         LANGUAGES C CXX
         )
 
-include_directories(source/include)
+include_directories(src/include)
 
-add_subdirectory(source)
+set(BINARY ${CMAKE_PROJECT_NAME})
+
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+add_executable(${BINARY} ${SOURCES})
+target_link_libraries(${BINARY} -lcrypto -lpthread)
+
+add_library(${BINARY}_lib STATIC ${SOURCES})
+target_link_libraries(${BINARY}_lib -lcrypto -lpthread)
 
 
 
